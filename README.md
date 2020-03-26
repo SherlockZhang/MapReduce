@@ -1,59 +1,102 @@
 # MapReduce
 
-This repo provides two examples and a script to easily define and run mapper and reducer functions against Hadoop MapReduce.
+The mapper.py function is modified to support those three rules with generic values. To use each rules, just change the input argument in the py_runner.sh file in the mapper function line.
 
-Generally speaking, on the top level there are folders that must contain:
+1. First selection cretiron: count word with certain string. For example, count word contain "oo", change py_runner.sh file to:
 
-* mapper.py
-* reducer.py
-* sample directory with data to be copied in hdfs within docker container
+#!/bin/bash
 
-__ENSURE THAT .py FILES HAVE `chmod +x` PERMISSIONS__
-(This is hadoop requirement)
+/etc/bootstrap.sh
+THIS_DIR=/usr/local/hadoop
 
-Of course, the idea is to add more folders that demonstrate different aggregations that can be achieved with MapReduce over different datasaets (that are available in the sample folder). The aspiration was to make something reusable quickly and cheaply.
+if [ -n "$1" ];
+then SUB_DIR="$1/" 
+fi
 
-## Usage
+'''diff
+${THIS_DIR}/bin/hadoop dfsadmin -safemode leave
+${THIS_DIR}/bin/hadoop fs -mkdir -p ${THIS_DIR}/sample
+${THIS_DIR}/bin/hdfs dfs -put ${THIS_DIR}/py/${SUB_DIR}sample/* ${THIS_DIR}/sample
+${THIS_DIR}/bin/hadoop jar \
+${THIS_DIR}/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar \
+-file ${THIS_DIR}/py/${SUB_DIR}mapper.py \
++-mapper "${THIS_DIR}/py/${SUB_DIR}mapper.py 1 oo"\
+-file ${THIS_DIR}/py/${SUB_DIR}reducer.py    \
+-reducer "${THIS_DIR}/py/${SUB_DIR}reducer.py ${*:2}" \
+-input ${THIS_DIR}/sample/* \
+-output ${THIS_DIR}/py-output
+${THIS_DIR}/bin/hdfs dfs -cat ${THIS_DIR}/py-output/*
+'''
+The first argument 1 means to use rule 1, the second argument means search "oo" with rule 1. Output will be:
 
-1. Download this repo
-2. CD into this repo
-3. Run the following
+foo 6
 
-```
-docker run \
-  -v $(pwd):/usr/local/hadoop/py \
-  -it sequenceiq/hadoop-docker:2.7.1 \
-  /usr/local/hadoop/py/py_runner.sh grep
-```
-(notice the **grep** keyword at the end - corresponds to the folder **grep**!)
+2. Second selectin cretion: count word begin with one letter and end with another letter. For example, begin with "f" and end with "o"
 
-expected output:
+py_runner.sh file:
 
-```
-foo	6
-quux	4
-```
+#!/bin/bash
 
-*Question*: How would you update the simple grep above to manage __any__ type of search? (In this case it encodes the "f" / "x" searching inside the reducer function). So basically, what if I wanted to find all the words that have "oo" or all the words that start in "k" but end in "e" or all the words that have a single capital letter in them?
+/etc/bootstrap.sh
+THIS_DIR=/usr/local/hadoop
 
-As you can imagine, the fix is not to hardcode all of these scenarios inside the map/reduce functions but instead, to come up with a more generic way to solve this.
+if [ -n "$1" ];
+then SUB_DIR="$1/" 
+fi
 
+'''diff
+${THIS_DIR}/bin/hadoop dfsadmin -safemode leave
+${THIS_DIR}/bin/hadoop fs -mkdir -p ${THIS_DIR}/sample
+${THIS_DIR}/bin/hdfs dfs -put ${THIS_DIR}/py/${SUB_DIR}sample/* ${THIS_DIR}/sample
+${THIS_DIR}/bin/hadoop jar \
+${THIS_DIR}/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar \
+-file ${THIS_DIR}/py/${SUB_DIR}mapper.py \
++-mapper "${THIS_DIR}/py/${SUB_DIR}mapper.py 2 f o"\
+-file ${THIS_DIR}/py/${SUB_DIR}reducer.py    \
+-reducer "${THIS_DIR}/py/${SUB_DIR}reducer.py ${*:2}" \
+-input ${THIS_DIR}/sample/* \
+-output ${THIS_DIR}/py-output
+${THIS_DIR}/bin/hdfs dfs -cat ${THIS_DIR}/py-output/*
+'''
 
-Another example:
+The first argument 2 means to use rule 2; 
+the second argument means to search word starts with "f";
+the third argument means to search word ends with "o". 
 
-```
-docker run \
-  -v $(pwd):/usr/local/hadoop/py \
-  -it sequenceiq/hadoop-docker:2.7.1 \
-  /usr/local/hadoop/py/py_runner.sh count
-```
-(notice the **count** keyword at the end  - corresponds to the folder **count**!)
+Output will be:
 
-expected output:
+foo 6
 
-```
-bar	0
-foo	6
-labs	0
-quux	4
-```
+3. Third cretiron: count word with certain number of capital letter. For example, count word with 1 capital letter.
+
+y_runner.sh file:
+
+#!/bin/bash
+
+/etc/bootstrap.sh
+THIS_DIR=/usr/local/hadoop
+
+if [ -n "$1" ];
+then SUB_DIR="$1/" 
+fi
+
+'''diff
+${THIS_DIR}/bin/hadoop dfsadmin -safemode leave
+${THIS_DIR}/bin/hadoop fs -mkdir -p ${THIS_DIR}/sample
+${THIS_DIR}/bin/hdfs dfs -put ${THIS_DIR}/py/${SUB_DIR}sample/* ${THIS_DIR}/sample
+${THIS_DIR}/bin/hadoop jar \
+${THIS_DIR}/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar \
+-file ${THIS_DIR}/py/${SUB_DIR}mapper.py \
++-mapper "${THIS_DIR}/py/${SUB_DIR}mapper.py 3 1"\
+-file ${THIS_DIR}/py/${SUB_DIR}reducer.py    \
+-reducer "${THIS_DIR}/py/${SUB_DIR}reducer.py ${*:2}" \
+-input ${THIS_DIR}/sample/* \
+-output ${THIS_DIR}/py-output
+${THIS_DIR}/bin/hdfs dfs -cat ${THIS_DIR}/py-output/*
+'''
+The first argument 3 means to use rule 3;
+the second argument means how many capital letter is required, here it is 1
+
+Output will be:
+
+(Actually it is empty, because no word in the data has any capital letter)
