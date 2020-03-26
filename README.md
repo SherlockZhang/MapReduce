@@ -20,7 +20,7 @@ Of course, the idea is to add more folders that demonstrate different aggregatio
 3. Run the following
 
 ```
-docker run \
++2docker run \
   -v $(pwd):/usr/local/hadoop/py \
   -it sequenceiq/hadoop-docker:2.7.1 \
   /usr/local/hadoop/py/py_runner.sh grep
