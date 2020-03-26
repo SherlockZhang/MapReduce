@@ -25,3 +25,5 @@ for line in sys.stdin:
         re_resu = re.findall(re_expr,word)
         if re_resu:
             print '%s\t%s' % (word, 1)
+        else:
+            print '%s\t%s' % (word, 0)
