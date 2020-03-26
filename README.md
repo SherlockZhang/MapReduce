@@ -55,7 +55,7 @@ ${THIS_DIR}/bin/hdfs dfs -put ${THIS_DIR}/py/${SUB_DIR}sample/* ${THIS_DIR}/samp
 ${THIS_DIR}/bin/hadoop jar \
 ${THIS_DIR}/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar \
 -file ${THIS_DIR}/py/${SUB_DIR}mapper.py \
--mapper "${THIS_DIR}/py/${SUB_DIR}mapper.py oo*"\
+-mapper "${THIS_DIR}/py/${SUB_DIR}mapper.py ^f.*o$"\
 -file ${THIS_DIR}/py/${SUB_DIR}reducer.py    \
 -reducer "${THIS_DIR}/py/${SUB_DIR}reducer.py ${*:2}" \
 -input ${THIS_DIR}/sample/* \
@@ -88,7 +88,7 @@ ${THIS_DIR}/bin/hdfs dfs -put ${THIS_DIR}/py/${SUB_DIR}sample/* ${THIS_DIR}/samp
 ${THIS_DIR}/bin/hadoop jar \
 ${THIS_DIR}/share/hadoop/tools/lib/hadoop-streaming-2.7.1.jar \
 -file ${THIS_DIR}/py/${SUB_DIR}mapper.py \
--mapper "${THIS_DIR}/py/${SUB_DIR}mapper.py oo*"\
+-mapper "${THIS_DIR}/py/${SUB_DIR}mapper.py [A-Z]{1}"\
 -file ${THIS_DIR}/py/${SUB_DIR}reducer.py    \
 -reducer "${THIS_DIR}/py/${SUB_DIR}reducer.py ${*:2}" \
 -input ${THIS_DIR}/sample/* \
