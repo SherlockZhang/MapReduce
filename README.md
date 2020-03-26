@@ -19,7 +19,7 @@ Of course, the idea is to add more folders that demonstrate different aggregatio
 2. CD into this repo
 3. Run the following
 
-```
+```diff
 +2docker run \
   -v $(pwd):/usr/local/hadoop/py \
   -it sequenceiq/hadoop-docker:2.7.1 \
